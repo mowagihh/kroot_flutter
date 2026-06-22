@@ -1,29 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product_model.dart';
-import '../theme/app_theme.dart';
 import '../widgets/product_card.dart';
 import 'order_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String _searchQuery = '';
 
   @override
-  void initState() { super.initState(); _tabController = TabController(length: 3, vsync: this); }
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
   @override
-  void dispose() { _tabController.dispose(); super.dispose(); }
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   List<Product> _filteredProducts(List<Product> products) {
     if (_searchQuery.isEmpty) return products;
-    final q = _searchQuery.toLowerCase();
-    return products.where((p) => p.displayName.toLowerCase().contains(q) || p.id.toLowerCase().contains(q)).toList();
+    final query = _searchQuery.toLowerCase();
+    return products.where((p) {
+      return p.displayName.toLowerCase().contains(query) ||
+          p.id.toLowerCase().contains(query);
+    }).toList();
   }
 
   @override
@@ -34,7 +45,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         actions: [
           IconButton(
             icon: const Icon(Icons.brightness_6),
-            onPressed: () => context.read<ThemeProvider>().toggleTheme(),
+            onPressed: () {
+              context.read<ThemeProvider>().toggleTheme();
+            },
           ),
         ],
         bottom: TabBar(
@@ -42,7 +55,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           indicatorColor: Colors.white,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
-          tabs: const [Tab(text: '\u0627\u0644\u0643\u0644'), Tab(text: '\u0641\u0627\u0643\u0651\u0629'), Tab(text: '\u0645\u0627\u0631\u062F')],
+          tabs: const [
+            Tab(text: '\u0627\u0644\u0643\u0644'),
+            Tab(text: '\u0641\u0627\u0643\u0651\u0629'),
+            Tab(text: '\u0645\u0627\u0631\u062F'),
+          ],
         ),
       ),
       body: Column(
@@ -55,7 +72,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 hintText: '\u0627\u0628\u062D\u062B \u0639\u0646 \u0643\u0627\u0631\u062A...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(icon: const Icon(Icons.clear), onPressed: () => setState(() => _searchQuery = ''))
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () => setState(() => _searchQuery = ''),
+                      )
                     : null,
               ),
               onChanged: (v) => setState(() => _searchQuery = v),
@@ -79,27 +99,37 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget _buildProductGrid(List<Product> products) {
     final filtered = _filteredProducts(products);
     if (filtered.isEmpty) {
-      return Center(child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text('\u0644\u0627 \u062A\u0648\u062C\u062F \u0646\u062A\u0627\u0626\u062C', style: TextStyle(color: Colors.grey[600], fontSize: 18)),
-        ],
-      ));
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text('\u0644\u0627 \u062A\u0648\u062C\u062F \u0646\u062A\u0627\u0626\u062C', style: TextStyle(color: Colors.grey[600], fontSize: 18)),
+          ],
+        ),
+      );
     }
     return GridView.builder(
       padding: const EdgeInsets.all(12),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, childAspectRatio: 0.85, crossAxisSpacing: 12, mainAxisSpacing: 12,
+        crossAxisCount: 2,
+        childAspectRatio: 0.85,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
       ),
       itemCount: filtered.length,
-      itemBuilder: (context, index) => ProductCard(
-        product: filtered[index],
-        onTap: () => Navigator.push(context, MaterialPageRoute(
-          builder: (_) => OrderScreen(product: filtered[index]),
-        )),
-      ),
+      itemBuilder: (context, index) {
+        return ProductCard(
+          product: filtered[index],
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OrderScreen(product: filtered[index]),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -108,5 +138,8 @@ class ThemeProvider extends ChangeNotifier {
   bool _isDark = false;
   bool get isDark => _isDark;
   ThemeMode get themeMode => _isDark ? ThemeMode.dark : ThemeMode.light;
-  void toggleTheme() { _isDark = !_isDark; notifyListeners(); }
+  void toggleTheme() {
+    _isDark = !_isDark;
+    notifyListeners();
+  }
 }
